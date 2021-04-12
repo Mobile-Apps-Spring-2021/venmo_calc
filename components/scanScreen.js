@@ -13,12 +13,11 @@ import TesseractOcr, {
   LEVEL_WORD,
 } from 'react-native-tesseract-ocr';
 
-const DEFAULT_HEIGHT = 500;
+const DEFAULT_HEIGHT = 1000;
 const DEFAULT_WITH = 600;
 const defaultPickerOptions = {
   cropping: true,
-  height: DEFAULT_HEIGHT,
-  width: DEFAULT_WITH,
+
 };
 
 export default class Scan extends React.Component {
