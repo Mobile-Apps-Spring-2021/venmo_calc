@@ -19,11 +19,14 @@ const stackNav = createStackNavigator();
 export default class App extends React.Component {
 	constructor(props){
 		super(props);
-		this.state = {name: 'Kevin', items: [[]]};
+		this.state = {name: 'Kevin', items: [[]], restaurantName: null};
 	}
 	
 	setItems(inArray){
 		this.setState({items: inArray});
+	}
+	setRName(rname){
+		this.setState({restaurantName: rname});
 	}
 	
 	render() {
@@ -31,15 +34,15 @@ export default class App extends React.Component {
 			<NavigationContainer>
 				<stackNav.Navigator initialRouteName='home'>
 					<stackNav.Screen name='home'>
-					 {props => <HomeScreen {...props} name={this.state.name} />}
+					 {props => <HomeScreen {...props} name={this.state.name} name2={'NaMe2'}/>}
 					</stackNav.Screen>
 					<stackNav.Screen name='scan'>
-					 {props => <ScanScreen {...props} itemSetter ={(ilist) => {this.setItems(ilist);}} />}
+					 {props => <ScanScreen {...props} itemSetter ={(ilist) => {this.setItems(ilist);}} resSetter ={(rname) => {this.setRName(rname);}} />}
 					</stackNav.Screen>
 					<stackNav.Screen name='manual' component={manualScreen}/>
 					<stackNav.Screen name='review' component={reviewScreen}/>
 					<stackNav.Screen name='after'>
-					{props => <AfterScan {...props} itemsArray={this.state.items} />}
+					{props => <AfterScan {...props} itemsArray={this.state.items} resName={this.state.restaurantName}/>}
 					</stackNav.Screen>
 				</stackNav.Navigator>
 			</NavigationContainer>
@@ -90,16 +93,19 @@ export class AfterScan extends Component{
 		super(props);
 		console.log('after screen');
 		console.log(this.props.itemsArray);
+		console.log(this.props.resName);
 	}
-
+	
 	
 	render(){
 		return(
 				<View style={styles.home}>
+					<Text>Restaurant name: {this.props.resName}</Text>
 					{ this.props.itemsArray.map((item, key) => (
 						<Text key= {key}>{item[0]}</Text>)
 					
 					)}
+					
 				</View>
 		
 		
@@ -110,7 +116,7 @@ export class AfterScan extends Component{
 export class ScanScreen extends Component{
 	constructor(props){
 		super(props);
-		this.state = {items: [[]], loaded: false, name:'kevin scan'};
+		this.state = {items: [[]], loaded: false, name:'kevin scan', restaurantName: null};
 	}
 	
 	setLoaded(l){
@@ -120,13 +126,18 @@ export class ScanScreen extends Component{
 	setItems(inArray){
 		this.setState({items: inArray});
 	}
+	
+	setRName(rname){
+		this.setState({restaurantName: rname});
+	}
 		
 	render(){
 
 		return(
 			<View style={{ flex: 1}}>
 				<Scan loadSetter ={(l) => {this.setLoaded(l);}}
-					  itemSetter ={(ilist) => {this.setItems(ilist);}}/>
+					  itemSetter ={(ilist) => {this.setItems(ilist);}}
+					  resSetter ={(rname) => {this.setRName(rname);}} />
 				
 				{this.state.loaded ?
 					(<TouchableOpacity
@@ -155,6 +166,7 @@ export class ScanScreen extends Component{
 		this.props.navigation.navigate('after', {name : this.state.name});
 		console.log(this.state.items);
 		this.props.itemSetter(this.state.items);
+		this.props.resSetter(this.state.restaurantName);
   }
   
 	notActive = () => {

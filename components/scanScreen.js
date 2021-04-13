@@ -23,12 +23,13 @@ const defaultPickerOptions = {
 export default class Scan extends React.Component {
 	constructor(props){
 		super(props);
-		this.state = { isLoading: false, progress: 0, imgSrc: null, text: '', arrayOfItems: [[]]};	
+		this.state = { isLoading: false, progress: 0, imgSrc: null, text: '', arrayOfItems: [[]], restaurantName: null};	
 	}
 	
 	processText(inText){
 		console.log('//////// processing text \\\\\\\\');
-		const regex = /\d+.?\d*$/;
+		const regex = /\d+\.\d*$/
+		//const regex = /\d+.?\d*$/;
 		let tempText = inText;
 		var linesArray = inText.split('\n');
 		var len = linesArray.length;
@@ -45,14 +46,18 @@ export default class Scan extends React.Component {
 				item = item.trim();
 				price = price.trim();
 				outArray.push([item,price]);
+				outArray[outIndex][1] = parseFloat(outArray[outIndex][1]);
 				outIndex++;
 			}
 
 		}
 
 		console.log(outArray);
+		console.log(linesArray[0]);
 		this.setState({arrayOfItems: outArray});
+		this.setState({restaurantName: linesArray[0]});
 		this.props.itemSetter(outArray);
+		this.props.resSetter(linesArray[0]);
 		this.props.loadSetter(true);
 		
 	}
@@ -67,6 +72,7 @@ export default class Scan extends React.Component {
 				LANG_ENGLISH,
 				tesseractOptions,
 			);
+			console.log(recognizedText);
 			this.processText(recognizedText);
 			this.setState({text: recognizedText});
 		} catch(err) {
@@ -133,7 +139,6 @@ export default class Scan extends React.Component {
 								<Text>Loading</Text>) : (
 								<Text>{this.state.text}</Text>
 							)}
-						<Text>{this.state.arrayOfItems[0][0]}</Text>
 					</View>
 				 )}
 			</View>
