@@ -48,8 +48,10 @@ function getRandomColor() {
     }
     return color;
   }
+  
 
-export default function NewReceipt() {
+
+export default function NewReceipt(props, route, navigation) {
     const ref_input2 = useRef();
     const [price, setPrice] = useState('0.00');
     const [itemName, setItemName] = useState('');
@@ -57,9 +59,26 @@ export default function NewReceipt() {
     const [splitContacts, setSplitContacts] = useState([{name : "Curtis Aaron", venmoUsername : "curtis-aaron"}])
     const [popoverVisibility, setPopoverVisibility] = useState(false);
     const [selectedContact, setSelectedContact] = useState(-1);
+	const [importedItems, setImportedItems] = useState([]);
+
+	const  populateImportedItems = async() => {
+		console.log('import in function');
+		console.log(importedItems);
+		setItems(props.route.params.itemsArray);
+	}	
 
 
     useEffect(() => {
+		
+		try{
+			setImportedItems(props.route.params.itemsArray);
+			populateImportedItems();
+		}
+		catch(err)
+		{
+			console.log('avoid error');
+		}
+		
         getContacts().then((contactsValue) => {
             if (contactsValue != "" && contactsValue != null) {
                 contactsValue.forEach(element => {
@@ -72,6 +91,7 @@ export default function NewReceipt() {
     }, [])
 
     return(
+
         <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); console.log('something')}} accessible={false}>
         <SafeAreaView style={styles.container}>
             {popoverVisibility && <View style={styles.popover}>
@@ -184,7 +204,7 @@ export default function NewReceipt() {
             
                 <FlatList
                     style={styles.flatList}
-                    data={getItemsWithTotal(items)}
+                    //data={getItemsWithTotal(items)}
                     keyExtractor={(item, index) => item + index}
                     renderItem={({item}) => {
                         return(<View style={styles.listFullView}>
