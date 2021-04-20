@@ -61,7 +61,8 @@ export class Scan extends React.Component {
 				price = linesArray[x].substring(numStartIndex);
 				item = item.trim();
 				price = price.trim();
-				outArray.push({name: item, price: parseFloat(price)});
+				outArray.push({name: item, price: price});
+				console.log(outArray[0].name);
 				//outArray[outIndex][1] = parseFloat(outArray[outIndex][1]);
 				outIndex++;
 			}
@@ -154,7 +155,7 @@ export class Scan extends React.Component {
 				
 				 {this.state.imgSrc && (
 					<View style={styles.imageContainer}>
-						<Image style={styles.image} source={this.state.imgSrc} />
+
 							{this.state.isLoading ? (
 								<Text>Loading</Text>) : (
 								<Text>Loaded</Text>

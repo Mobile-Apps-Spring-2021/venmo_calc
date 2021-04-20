@@ -204,7 +204,7 @@ export default function NewReceipt(props, route, navigation) {
             
                 <FlatList
                     style={styles.flatList}
-                    //data={getItemsWithTotal(items)}
+                    data={getItemsWithTotal(items)}
                     keyExtractor={(item, index) => item + index}
                     renderItem={({item}) => {
                         return(<View style={styles.listFullView}>
