@@ -13,18 +13,20 @@ const getContacts = async() => {
 }
 
 function getInitials(item) {
-    let splitName = item.name.split(' ');
-    var initials = "";
-    for (var i = 0; i < 2; i++) {
-        if (splitName[i] != null) {
-            let character = splitName[i][0]
-            initials += character;
-        } 
-    }
-    if (initials.length < 2) {
-        initials = item.name.slice(0, 2);
-    }
-    return initials;
+	//if(item != undefined){
+		console.log('Item : ' + JSON.stringify(item));
+		let splitName = item.name.split(' ');
+		var initials = "";
+		for (var i = 0; i < 2; i++) {
+			if (splitName[i] != null) {
+				let character = splitName[i][0]
+				initials += character;
+			} 
+		}
+		if (initials.length < 2) {
+			initials = item.name.slice(0, 2);
+		}
+		return initials;
 }
 
 function getItemsWithTotal(items) {
@@ -35,8 +37,8 @@ function getItemsWithTotal(items) {
         item.contacts = [0, 1]
         total += parseFloat(item.price);
     })
-    itemsWithTotal.push({name : 'total', price : total})
-
+    itemsWithTotal.push({name : 'total', price : total.toString()})
+	console.log('Items with total = ' + JSON.stringify(itemsWithTotal));
     return itemsWithTotal;
 }
 
@@ -55,8 +57,10 @@ export default function NewReceipt(props, route, navigation) {
     const ref_input2 = useRef();
     const [price, setPrice] = useState('0.00');
     const [itemName, setItemName] = useState('');
-    const [items, setItems] = useState([])
-    const [splitContacts, setSplitContacts] = useState([{name : "Curtis Aaron", venmoUsername : "curtis-aaron"}])
+	const [items, setItems] = useState([]);
+
+	const [splitContacts, setSplitContacts] = useState([])
+    //const [splitContacts, setSplitContacts] = useState([{name : "Curtis Aaron", venmoUsername : "curtis-aaron"}])
     const [popoverVisibility, setPopoverVisibility] = useState(false);
     const [selectedContact, setSelectedContact] = useState(-1);
 	const [importedItems, setImportedItems] = useState([]);
@@ -70,8 +74,19 @@ export default function NewReceipt(props, route, navigation) {
 
     useEffect(() => {
 		
+		getContacts().then((contactsValue) => {
+            if (contactsValue != "" && contactsValue != null) {
+                contactsValue.forEach(element => {
+                    element.color = getRandomColor();
+					console.log(element.color);
+                });
+                setSplitContacts(contactsValue)
+            }
+        })
+		console.log(items);
+		
 		try{
-			setImportedItems(props.route.params.itemsArray);
+			setItems(props.route.params.itemsArray);
 			populateImportedItems();
 		}
 		catch(err)
@@ -79,14 +94,7 @@ export default function NewReceipt(props, route, navigation) {
 			console.log('avoid error');
 		}
 		
-        getContacts().then((contactsValue) => {
-            if (contactsValue != "" && contactsValue != null) {
-                contactsValue.forEach(element => {
-                    element.color = getRandomColor();
-                });
-                setSplitContacts(contactsValue)
-            }
-        })
+        
 
     }, [])
 
@@ -207,21 +215,27 @@ export default function NewReceipt(props, route, navigation) {
                     data={getItemsWithTotal(items)}
                     keyExtractor={(item, index) => item + index}
                     renderItem={({item}) => {
+						console.log('data : ' + item);
                         return(<View style={styles.listFullView}>
                                     <View style={styles.listItemView}>
                                         <Text style={styles.listItemName}>{item.name}</Text>
                                         <Text style={styles.listItemPrice}>${item.price}</Text>
                                     </View>
-                                    <FlatList
+								<FlatList
                                         horizontal 
                                         style={{
                                             height: '100%',
                                         }}
                                         data={item.contacts}
-                                        keyExtractor={(item, index) => item+index}
+										//added toString to remove an error
+                                        keyExtractor={(item, index) => item+index.toString()}
                                         renderItem={({item}) => {
-                                            let contact = splitContacts[item]
-                                            let initials = getInitials(contact);
+											
+											console.log(JSON.stringify(item));
+                                            let contact = (splitContacts.length - 1 < item) ? '' : splitContacts[item];
+											console.log('Contact = ' + contact);
+                                            let initials = (splitContacts.length - 1 < item) ? '' : getInitials(contact);
+											console.log('Initials :' + initials);
                                             return(
                                                 <View 
                                                     style={{
@@ -246,6 +260,7 @@ export default function NewReceipt(props, route, navigation) {
                                         }}>
 
                                     </FlatList>
+
                                 </View>)}}
                     />
             <TouchableOpacity 
@@ -264,7 +279,7 @@ export default function NewReceipt(props, route, navigation) {
                     marginLeft: '2%',
                     marginRight: '2%',
                 }}>
-                    <FlatList
+					<FlatList
                         horizontal
                         style={styles.contactFlatList}
                         contentContainerStyle={styles.contactFlatListContainer} data={splitContacts}
@@ -284,6 +299,7 @@ export default function NewReceipt(props, route, navigation) {
                             </TouchableOpacity>)
                         }}>
                     </FlatList>
+
                     <TouchableOpacity>
                         <Text>
                             button
