@@ -1,6 +1,8 @@
 import React, {useState, useRef, useEffect} from 'react';
 import { TouchableWithoutFeedback, Keyboard, SafeAreaView, View, StyleSheet, Text, TextInput, TouchableOpacity, FlatList, } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Switch } from 'react-native-gesture-handler';
+import { render } from 'react-dom';
 
 const getContacts = async() => {
     try {
@@ -28,16 +30,17 @@ function getInitials(item) {
 	return initials;
 }
 
-function getItemsWithTotal(items) {
+function getItemsWithTotal(items, pushTotal) {
     var itemsWithTotal = []
-    var total = 0
+    var total = 0;
     items.forEach(item => {
-        itemsWithTotal.push(item)
-        item.contacts = [0, 1]
+        itemsWithTotal.push(item);
         total += parseFloat(item.price);
     })
-    itemsWithTotal.push({name : 'total', price : total.toString()})
-	console.log('Items with total = ' + JSON.stringify(itemsWithTotal));
+    if (pushTotal) {
+        itemsWithTotal.push({name : 'total', price : total.toString()})
+        console.log('Items with total = ' + JSON.stringify(itemsWithTotal));
+    }
     return itemsWithTotal;
 }
 
@@ -65,6 +68,9 @@ export default function NewReceipt(props, route, navigation) {
     const [selectedContact, setSelectedContact] = useState(-1);
 	const [importedItems, setImportedItems] = useState([]);
 	const [refreshPage, setRefreshPage] = useState("");
+
+    const [splitByItem, setSplitByItem] = useState(true);
+    const [calculateTotal, setCalculateTotal] = useState(true);
 
 	const  populateImportedItems = async() => {
 		console.log('import in function');
@@ -275,15 +281,43 @@ export default function NewReceipt(props, route, navigation) {
             
                 <FlatList
                     style={styles.flatList}
-                    data={getItemsWithTotal(items)}
+                    data={getItemsWithTotal(items, calculateTotal)}
                     keyExtractor={(item, index) => item + index}
-                    renderItem={({item}) => {
+                    renderItem={({item, index}) => {
 						console.log('data : ' + item);
+                        let rng = item.contacts;
                         return(<View style={styles.listFullView}>
-                                    <View style={styles.listItemView}>
+                                    <TouchableOpacity 
+                                        style={styles.listItemView}
+                                        onPress={() => {
+                                            console.log('press')
+                                            let newItem = item;
+                                            if (selectedContact > -1 && (items.length != index) || !calculateTotal) {
+                                                if (newItem.contacts == null) {
+                                                    newItem.contacts = [selectedContact]
+                                                } else {
+                                                    let contactsIndex = newItem.contacts.indexOf(selectedContact);
+                                                    if (contactsIndex > -1) {
+                                                        newItem.contacts.splice(contactsIndex, 1);
+                                                    } else {
+                                                        newItem.contacts.push(selectedContact);
+                                                    }
+                                                }                                                 
+                                                // let newItems = items;
+                                                // newItems[index] = newItem;
+                                                setItems(newItems => {
+                                                    return newItems.map((item, id) => {
+                                                        if (id === index) {
+                                                           item = newItem;
+                                                        }
+                                                        return item;
+                                                      });
+                                                });
+                                            }
+                                        }}>
                                         <Text style={styles.listItemName}>{item.name}</Text>
                                         <Text style={styles.listItemPrice}>${item.price}</Text>
-                                    </View>
+                                    </TouchableOpacity>
 								<FlatList
                                         horizontal 
                                         style={{
@@ -323,9 +357,28 @@ export default function NewReceipt(props, route, navigation) {
                                         }}>
 
                                     </FlatList>
+                                
 
                                 </View>)}}
                     />
+            <View style={styles.settingsContainer}>
+                <View style={styles.settingsContainerItem}>
+                    <Text>Split by Item</Text>
+                    <Switch
+                        value={splitByItem}
+                        onValueChange={()=>{setSplitByItem(!splitByItem)}}
+                        ></Switch>
+                </View>
+                {splitByItem ? <Text>Click a contact then the item to assign</Text> : 
+                                  <Text>Total will be split by all contacts on receipt</Text> }
+                <View style={styles.settingsContainerItem}>
+                    <Text>Calculate Total</Text>
+                    <Switch
+                        value={calculateTotal}
+                        onValueChange={()=>{setCalculateTotal(!calculateTotal)}}
+                        ></Switch>
+                </View>
+            </View>
             <TouchableOpacity 
                 style={styles.newItemButton}
                 onPress={() => {
@@ -387,6 +440,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+  },
+  settingsContainer: {
+    width: '90%',
+    marginLeft: '5%',
+    justifyContent: 'flex-start',
+    height: '20%',
+  },
+  settingsContainerItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 0,
+    marginTop: 15,
   },
   titleLabel: {
     marginTop: 20,
