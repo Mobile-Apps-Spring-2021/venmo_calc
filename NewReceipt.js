@@ -110,8 +110,8 @@ export default function NewReceipt(props, route, navigation) {
 				style = {styles.popoverTitleLabel}
 				>Add Contacts</Text>
 			<FlatList
-				vertical
-				style={styles.contactFlatList}
+				veritical
+				style={styles.addContactFlatList}
 				contentContainerStyle={styles.contactFlatListContainer} data={splitContacts}
 				keyExtractor={(item, index) => item + index}
 				renderItem={ ({item, index}) => {
@@ -484,7 +484,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowColor: 'black',
     shadowOpacity: 0.2,
-    shadowOffset: {width: 2, height: 2}
+    shadowOffset: {width: 2, height: 2},
+	height: 300,
   },
   newItemButton: {
     // position: 'absolute',
@@ -514,6 +515,12 @@ const styles = StyleSheet.create({
   contactFlatList: {
     flexDirection: 'row',
     width: '70%',
+  },
+  addContactFlatList: {
+	flex: 1,
+    //flexDirection: 'column',
+    width: '60%',
+	height:'20%',
   },
   contactFlatListContainer: {
     alignContent: 'center',
