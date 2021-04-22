@@ -61,7 +61,9 @@ export class Scan extends React.Component {
 				price = linesArray[x].substring(numStartIndex);
 				item = item.trim();
 				price = price.trim();
-				outArray.push({name: item, price: price});
+				if(!(item.includes('total') || item.includes('TOTAL'))){
+					outArray.push({name: item, price: price});
+				}
 				console.log(outArray[0].name);
 				//outArray[outIndex][1] = parseFloat(outArray[outIndex][1]);
 				outIndex++;
