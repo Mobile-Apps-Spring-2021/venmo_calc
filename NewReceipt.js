@@ -13,20 +13,19 @@ const getContacts = async() => {
 }
 
 function getInitials(item) {
-	//if(item != undefined){
-		console.log('Item : ' + JSON.stringify(item));
-		let splitName = item.name.split(' ');
-		var initials = "";
-		for (var i = 0; i < 2; i++) {
-			if (splitName[i] != null) {
-				let character = splitName[i][0]
-				initials += character;
-			} 
-		}
-		if (initials.length < 2) {
-			initials = item.name.slice(0, 2);
-		}
-		return initials;
+	console.log('Item : ' + JSON.stringify(item));
+	let splitName = item.name.split(' ');
+	var initials = "";
+	for (var i = 0; i < 2; i++) {
+		if (splitName[i] != null) {
+			let character = splitName[i][0]
+			initials += character;
+		} 
+	}
+	if (initials.length < 2) {
+		initials = item.name.slice(0, 2);
+	}
+	return initials;
 }
 
 function getItemsWithTotal(items) {
@@ -58,12 +57,14 @@ export default function NewReceipt(props, route, navigation) {
     const [price, setPrice] = useState('0.00');
     const [itemName, setItemName] = useState('');
 	const [items, setItems] = useState([]);
-
+	const [addedContacts, setAddedContacts] = useState([]);
 	const [splitContacts, setSplitContacts] = useState([])
     //const [splitContacts, setSplitContacts] = useState([{name : "Curtis Aaron", venmoUsername : "curtis-aaron"}])
     const [popoverVisibility, setPopoverVisibility] = useState(false);
+	const [contactPopoverVis, setContactPopoverVis] = useState(false);
     const [selectedContact, setSelectedContact] = useState(-1);
 	const [importedItems, setImportedItems] = useState([]);
+	const [refreshPage, setRefreshPage] = useState("");
 
 	const  populateImportedItems = async() => {
 		console.log('import in function');
@@ -102,6 +103,68 @@ export default function NewReceipt(props, route, navigation) {
 
         <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); console.log('something')}} accessible={false}>
         <SafeAreaView style={styles.container}>
+			
+			{/* Popper to select contact for the receipt */}
+			{contactPopoverVis && <View style={styles.contactPopover}>
+			<Text
+				style = {styles.popoverTitleLabel}
+				>Add Contacts</Text>
+			<FlatList
+				veritical
+				style={styles.addContactFlatList}
+				contentContainerStyle={styles.contactFlatListContainer} data={splitContacts}
+				keyExtractor={(item, index) => item + index}
+				renderItem={ ({item, index}) => {
+					let i = 0;
+					let contactInfo = item.name + ',\n@' + item.venmoUsername;
+					console.log('here ' + addedContacts.includes(item));
+					let borderRadius = addedContacts.includes(item) ? 2 : 0;
+					let bcolor = addedContacts.includes(item) ? item.color : 'lightgrey';
+					console.log('radius ' + borderRadius);
+					return (<TouchableOpacity 
+							style = {[styles.addContactFlatListItem, {backgroundColor : (addedContacts.includes(item) ? item.color : 'lightgrey') , borderWidth : borderRadius}]}
+							onPress ={() => {
+								console.log(addedContacts.includes(item));
+								setRefreshPage(Math.random());
+								i = addedContacts.indexOf(item);
+								console.log(i);
+								if(addedContacts.includes(item)){
+									console.log('Found? ' + i);
+									addedContacts.splice(i, 1);
+								}
+								else{
+									addedContacts.push(item);
+								}
+								
+								
+								{/*(addedContacts.includes(item) ? addedContacts.push(item) : ; */}
+								{/*setSelectedContact(selectedContact == index ? -1 : index);*/}
+								console.log('added contacts: ' + JSON.stringify(addedContacts));
+							}}>
+						<Text>
+							{contactInfo}
+						</Text>
+					</TouchableOpacity>)
+				}}>
+			</FlatList>
+			<View
+                style = {styles.buttonContainer}>
+				<TouchableOpacity 
+					style = {styles.button}
+					onPress = { () => {
+						setContactPopoverVis(false);
+					}}>
+					<Text
+						style = {styles.buttonText}>
+							Close
+					</Text>
+				</TouchableOpacity>
+			</View>
+			</View>
+			
+			//end addContact popper
+			
+			}
             {popoverVisibility && <View style={styles.popover}>
             <Text
                 style = {styles.popoverTitleLabel}
@@ -279,10 +342,12 @@ export default function NewReceipt(props, route, navigation) {
                     marginLeft: '2%',
                     marginRight: '2%',
                 }}>
+					{/* changed splitContacts to addedContacts*/}
 					<FlatList
                         horizontal
                         style={styles.contactFlatList}
-                        contentContainerStyle={styles.contactFlatListContainer} data={splitContacts}
+																				
+                        contentContainerStyle={styles.contactFlatListContainer} data={addedContacts}
                         keyExtractor={(item, index) => item + index}
                         renderItem={ ({item, index}) => {
                             let initials = getInitials(item);
@@ -300,9 +365,13 @@ export default function NewReceipt(props, route, navigation) {
                         }}>
                     </FlatList>
 
-                    <TouchableOpacity>
+                    <TouchableOpacity
+						onPress={() => {
+							setContactPopoverVis(true);
+							console.log('Add contacts');
+						}}>
                         <Text>
-                            button
+                            Add Contact
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -402,6 +471,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: {width: 2, height: 2}
   },
+  contactPopover: {
+    textAlign: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    zIndex: 20,
+    left: '10%',
+    right: '10%',
+    marginTop: '30%',
+    backgroundColor: 'lightgrey',
+    borderRadius: 5,
+    shadowRadius: 5,
+    shadowColor: 'black',
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 2, height: 2},
+	height: 300,
+  },
   newItemButton: {
     // position: 'absolute',
     justifyContent: 'center',
@@ -431,10 +516,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '70%',
   },
+  addContactFlatList: {
+	flex: 1,
+    //flexDirection: 'column',
+    width: '60%',
+	height:'20%',
+  },
   contactFlatListContainer: {
     alignContent: 'center',
     justifyContent: 'center',
     marginLeft: '3%',
+  },
+  addContactFlatListItem: {
+	flex:1,
+	backgroundColor: 'white',
+    height: 50,
+    width: 150,
+    borderRadius: 30,
+	padding:2,
+	margin: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   contactFlatListItem: {
     backgroundColor: 'white',
