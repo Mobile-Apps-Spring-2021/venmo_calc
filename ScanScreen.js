@@ -7,6 +7,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import NewReceipt from './NewReceipt'
+import RequestScreen from './RequestScreen'
 import TesseractOcr, {
   LANG_ENGLISH,
   useEventListener,
@@ -30,6 +31,7 @@ export default class ScanScreen extends React.Component {
 			  <stackNav.Navigator initialRouteName='scan'>
 				<stackNav.Screen name='scan' component={Scan}/>
 				<stackNav.Screen name='review' component={NewReceipt}/>
+				<stackNav.Screen name='split' component={RequestScreen}/>
 			   </stackNav.Navigator>
 			</NavigationContainer>
 		);
