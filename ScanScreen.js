@@ -31,7 +31,7 @@ export default class ScanScreen extends React.Component {
 			  <stackNav.Navigator initialRouteName='scan'>
 				<stackNav.Screen name='scan' component={Scan}/>
 				<stackNav.Screen name='review' component={NewReceipt}/>
-				<stackNav.Screen name='split' component={RequestScreen}/>
+				<stackNav.Screen name='Split' component={RequestScreen}/>
 			   </stackNav.Navigator>
 			</NavigationContainer>
 		);

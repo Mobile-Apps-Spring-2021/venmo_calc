@@ -3,6 +3,20 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { View, StyleSheet, Text, Linking } from 'react-native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
+import SQLite from 'react-native-sqlite-storage';
+
+const db = SQLite.openDatabase({name: 'history.db', createFromLocation: '~www/history.db'});
+
+function addToDatabase(username, title, amount){
+	let reqName = '\'@' + username + '\'';
+	let reqTitle = '\'' + title + '\'';
+	db.transaction( tx => {
+		tx.executeSql('insert into requests values(' + reqName + ', ' + amount + ',' + reqTitle + ')', [], (tx, results) => {
+		});
+		}, error => {
+			console.log(error);
+		});
+}
 
 function generateVenmoLink(contact, description, amount) {
     return (`venmo://paycharge?txn=charge&recipients=${contact}&amount=${amount}&note=${description}`)
@@ -38,6 +52,19 @@ export default function RequestScreen(props) {
         });
         console.log(JSON.stringify(venmoRequests));
         setVRequests(venmoRequests);
+		
+		//grabbing sqlite database
+		db.transaction( tx => {
+		tx.executeSql('select * from requests', [], (tx, results) => {
+		    var temp = [];
+			for (let i = 0; i < results.rows.length; ++i)
+				temp.push(results.rows.item(i));
+			console.log(temp);
+			setPastReqs(temp);
+		 });
+			}, error => {
+			   console.log(error);
+		 });
     }, []);
     return(
         <View style = {styles.container}>
@@ -62,6 +89,7 @@ export default function RequestScreen(props) {
                                     });
                                 });
                                 Linking.openURL(generateVenmoLink(item.contact, item.desc, item.amount));
+								addToDatabase(item.contact, item.desc, item.amount);
                             }}>
                             <Text
                                 style={styles.listText}
