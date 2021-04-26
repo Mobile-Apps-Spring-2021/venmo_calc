@@ -88,8 +88,9 @@ export default function RequestScreen(props) {
                                         return item;
                                     });
                                 });
-                                Linking.openURL(generateVenmoLink(item.contact, item.desc, item.amount));
 								addToDatabase(item.contact, item.desc, item.amount);
+                                Linking.openURL(generateVenmoLink(item.contact, item.desc, item.amount));
+								
                             }}>
                             <Text
                                 style={styles.listText}
