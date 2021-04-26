@@ -2,7 +2,6 @@ import React, {useState, useRef, useEffect} from 'react';
 import { TouchableWithoutFeedback, Keyboard, SafeAreaView, View, StyleSheet, Text, TextInput, TouchableOpacity, FlatList, } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Switch } from 'react-native-gesture-handler';
-import { render } from 'react-dom';
 
 const getContacts = async() => {
     try {
@@ -51,9 +50,7 @@ function getRandomColor() {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-  }
-  
-
+}
 
 export default function NewReceipt(props, route, navigation) {
     const ref_input2 = useRef();
@@ -62,12 +59,12 @@ export default function NewReceipt(props, route, navigation) {
 	const [items, setItems] = useState([]);
 	const [addedContacts, setAddedContacts] = useState([]);
 	const [splitContacts, setSplitContacts] = useState([])
-    //const [splitContacts, setSplitContacts] = useState([{name : "Curtis Aaron", venmoUsername : "curtis-aaron"}])
     const [popoverVisibility, setPopoverVisibility] = useState(false);
 	const [contactPopoverVis, setContactPopoverVis] = useState(false);
     const [selectedContact, setSelectedContact] = useState(-1);
 	const [importedItems, setImportedItems] = useState([]);
 	const [refreshPage, setRefreshPage] = useState("");
+	const [receiptName, setReceiptName] = useState(`Receipt - ${Date()}`);
 
     const [splitByItem, setSplitByItem] = useState(true);
     const [calculateTotal, setCalculateTotal] = useState(true);
@@ -78,9 +75,7 @@ export default function NewReceipt(props, route, navigation) {
 		setItems(props.route.params.itemsArray);
 	}	
 
-
     useEffect(() => {
-		
 		getContacts().then((contactsValue) => {
             if (contactsValue != "" && contactsValue != null) {
                 contactsValue.forEach(element => {
@@ -100,16 +95,11 @@ export default function NewReceipt(props, route, navigation) {
 		{
 			console.log('avoid error');
 		}
-		
-        
-
     }, [])
 
     return(
-
         <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); console.log('something')}} accessible={false}>
         <SafeAreaView style={styles.container}>
-			
 			{/* Popper to select contact for the receipt */}
 			{contactPopoverVis && <View style={styles.contactPopover}>
 			<Text
@@ -141,8 +131,6 @@ export default function NewReceipt(props, route, navigation) {
 								else{
 									addedContacts.push(item);
 								}
-								
-								
 								{/*(addedContacts.includes(item) ? addedContacts.push(item) : ; */}
 								{/*setSelectedContact(selectedContact == index ? -1 : index);*/}
 								console.log('added contacts: ' + JSON.stringify(addedContacts));
@@ -269,13 +257,13 @@ export default function NewReceipt(props, route, navigation) {
             </View>}
             <Text
                 style = {styles.titleLabel}
-                >Receipt Name</Text>
+                >Lets slipt the bill!</Text>
             <TextInput 
                 style = {styles.titleInput}
                 returnKeyType = {"next"}
                 autoFocus = {true}
-                placeholder = "Title" 
-                onChangeText={text => console.log(`text = ${text}`)}
+                placeholder = "Enter Receipt Name" 
+                onChangeText={text => setReceiptName(text)}
                 onSubmitEditing={Keyboard.dismiss}
                 />
             
@@ -318,6 +306,7 @@ export default function NewReceipt(props, route, navigation) {
                                         <Text style={styles.listItemName}>{item.name}</Text>
                                         <Text style={styles.listItemPrice}>${item.price}</Text>
                                     </TouchableOpacity>
+                                {splitByItem &&
 								<FlatList
                                         horizontal 
                                         style={{
@@ -356,7 +345,7 @@ export default function NewReceipt(props, route, navigation) {
                                             )
                                         }}>
 
-                                    </FlatList>
+                                    </FlatList>}
                                 
 
                                 </View>)}}
@@ -379,13 +368,43 @@ export default function NewReceipt(props, route, navigation) {
                         ></Switch>
                 </View>
             </View>
-            <TouchableOpacity 
-                style={styles.newItemButton}
-                onPress={() => {
-                    setPopoverVisibility(true);
-                }}>
-                <Text style={styles.newItemButtonText}>+</Text>
-            </TouchableOpacity>
+            <View style={styles.actionRow}>
+                <View style={styles.doneButtonRow}>
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={() => {
+                            if (addedContacts.length > 0) {
+                                var requestItems = null;
+                                var requestTotal = null;
+                                let itemsWithTotal = getItemsWithTotal(items, calculateTotal);
+                                requestTotal = itemsWithTotal[itemsWithTotal.length - 1].price;
+
+                                if (splitByItem) {
+                                    requestItems = items;
+                                }
+
+                                props.navigation.navigate('Split', {
+                                    items : requestItems,
+                                    contacts : addedContacts,
+                                    total: requestTotal,
+                                    splitByItem: splitByItem,
+                                    receiptName: receiptName,
+                                });
+                            } else {
+                                // show alert here
+                            }
+                        }}>
+                        <Text style={styles.buttonText}>done</Text>
+                    </TouchableOpacity>
+                </View>
+                <TouchableOpacity 
+                    style={styles.newItemButton}
+                    onPress={() => {
+                        setPopoverVisibility(true);
+                    }}>
+                    <Text style={styles.newItemButtonText}>+</Text>
+                </TouchableOpacity>
+            </View>
             <View style = {styles.contactsView}>
                 <View style={{
                     flexDirection: 'row',
@@ -583,7 +602,6 @@ const styles = StyleSheet.create({
   },
   addContactFlatList: {
 	flex: 1,
-    //flexDirection: 'column',
     width: '60%',
 	height:'20%',
   },
@@ -615,5 +633,10 @@ const styles = StyleSheet.create({
   contactFlatListText: {
     fontSize: 25,
     color: 'white',
+  },
+  doneButtonRow: {
+    justifyContent: 'center',
+    width: '100%',
+    flexDirection: 'row',
   }
 });
