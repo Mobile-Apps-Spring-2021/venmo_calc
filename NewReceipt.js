@@ -3,6 +3,8 @@ import { TouchableWithoutFeedback, Keyboard, SafeAreaView, View, StyleSheet, Tex
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Switch } from 'react-native-gesture-handler';
 import { render } from 'react-dom';
+import SQLite from 'react-native-sqlite-storage';
+
 
 const getContacts = async() => {
     try {
@@ -56,6 +58,9 @@ function getRandomColor() {
 
 
 export default function NewReceipt(props, route, navigation) {
+	
+	const db = SQLite.openDatabase({name: 'history.db', createFromLocation: '~www/history.db'});
+	
     const ref_input2 = useRef();
     const [price, setPrice] = useState('0.00');
     const [itemName, setItemName] = useState('');
@@ -78,8 +83,35 @@ export default function NewReceipt(props, route, navigation) {
 		setItems(props.route.params.itemsArray);
 	}	
 
+	/*
+	const sqlStuff(() => {
+				//sql test
+		db.transaction( tx => {
+		tx.executeSql('select * from requests', [], (tx, results) => {
+		    var temp = [];
+			for (let i = 0; i < results.rows.length; ++i)
+				temp.push(results.rows.item(i));
+			console.log(temp);
+			setPastReqs(temp);
+		 });
+			}, error => {
+			   console.log(error);
+		 });
+		 
+		db.transaction( tx => {
+		tx.executeSql('insert into requests values(\'@eric3\', 30.00, \'food\', 2021)', [], (tx, results) => {
+		});
+		}, error => {
+			console.log(error);
+		});
+		 
+		 //end test
+	})
 
-    useEffect(() => {
+
+
+	*/
+    useEffect(() => {		
 		
 		getContacts().then((contactsValue) => {
             if (contactsValue != "" && contactsValue != null) {
