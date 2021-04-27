@@ -38,7 +38,7 @@ export default function Contacts() {
                 setContacts(contactsValue)
             }
         })
-    })
+    }, [])
     return(
         <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); console.log('something')}} accessible={false}>
         <SafeAreaView style={styles.container}>
