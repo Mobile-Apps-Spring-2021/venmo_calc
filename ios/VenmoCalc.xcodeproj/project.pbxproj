@@ -349,7 +349,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.eaclimo.venmoCalculator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kzachary.venmoCalculator;
 				PRODUCT_NAME = venmoCalculator;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -376,7 +376,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.eaclimo.venmoCalculator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kzachary.venmoCalculator;
 				PRODUCT_NAME = venmoCalculator;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
