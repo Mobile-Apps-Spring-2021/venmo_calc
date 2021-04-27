@@ -65,6 +65,7 @@ export default function NewReceipt(props, route, navigation) {
 	const [importedItems, setImportedItems] = useState([]);
 	const [refreshPage, setRefreshPage] = useState("");
 	const [receiptName, setReceiptName] = useState(`Receipt - ${Date()}`);
+    const [selectedItem, setSelectedItem] = useState(-1);
 
     const [splitByItem, setSplitByItem] = useState(true);
     const [calculateTotal, setCalculateTotal] = useState(true);
@@ -159,10 +160,12 @@ export default function NewReceipt(props, route, navigation) {
 			//end addContact popper
 			
 			}
-            {popoverVisibility && <View style={styles.popover}>
+            {(popoverVisibility || selectedItem > -1) && <View style={styles.popover}>
             <Text
                 style = {styles.popoverTitleLabel}
-                >Add Item</Text>
+                >
+                    {(selectedItem <= -1) ? "Add Item":"Update Item"}
+                </Text>
             <TextInput
                 style = {styles.itemNameInput}          
                 returnKeyType = {"next"}
@@ -223,34 +226,54 @@ export default function NewReceipt(props, route, navigation) {
                         onPress = { () => {
                             var tempItems = items;
                             if (itemName != "" && price != 0) {
-                                tempItems.push({
-                                    name : itemName,
-                                    price : price,
-                                });
+                                if (selectedItem > -1) {
+                                    tempItems.splice(selectedItem, 1, {
+                                        name : itemName,
+                                        price : price,
+                                    });
+                                }
+                                else{
+                                    tempItems.push({
+                                        name : itemName,
+                                        price : price,
+                                    });
+                                }
+                                
                                 setPrice('0.00');
                                 setItemName('');
                                 setItems(tempItems);
                                 setPopoverVisibility(false);
+                                setSelectedItem(-1);
                             }
                             console.log(items);
                         }}
                         >
                         <Text
                             style = {styles.buttonText}>
-                                Add Item
+                                {(selectedItem <= -1) ? "Add Item" : "Update Item"}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                         style = {styles.button}
                         onPress = { () => {
+                            
+                            if(selectedItem => -1){
+                                var tempItems = items;
+                                tempItems.splice(selectedItem, 1)
+                                setItems(tempItems);
+                            }
+
                             setPrice('0.00');
                             setItemName('');
+                            setSelectedItem(-1);
                             setPopoverVisibility(false);
+
+                            setSelectedItem(-1);
                         }}
                         >
                         <Text
                             style = {styles.buttonText}>
-                                Cancel
+                                {selectedItem > -1 ? "Delete":"Cancel"}
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -301,6 +324,11 @@ export default function NewReceipt(props, route, navigation) {
                                                         return item;
                                                       });
                                                 });
+                                            }
+                                            else{
+                                                setSelectedItem(index)
+                                                setPrice(item.price)
+                                                setItemName(item.name)
                                             }
                                         }}>
                                         <Text style={styles.listItemName}>{item.name}</Text>
