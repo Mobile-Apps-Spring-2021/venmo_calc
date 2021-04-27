@@ -49,7 +49,7 @@ export default function Contacts() {
                 }}>
                 <Text style={styles.newItemButtonText}>+</Text>
             </TouchableOpacity>
-            {(popoverVisibility || selectedIndex > 0) && <View style={styles.popover}>
+            {(popoverVisibility || selectedIndex > -1) && <View style={styles.popover}>
             <Text
                 style = {styles.popoverTitleLabel}
                 >{selectedIndex > -1 ? "Edit Contact": "New Contact"}</Text>
