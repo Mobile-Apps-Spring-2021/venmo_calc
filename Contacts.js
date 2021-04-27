@@ -25,12 +25,10 @@ const getContacts = async() => {
 
 export default function Contacts() {
     const ref_input2 = useRef();
-    const [price, setPrice] = useState('');
-    const [itemName, setItemName] = useState('');
+    const [venmoUsername, setVenmoUsername] = useState('');
+    const [contactName, setContactName] = useState('');
     const [contacts, setContacts] = useState([])
     const [popoverVisibility, setPopoverVisibility] = useState(false);
-    const [popoverVisibility2, setPopoverVisibility2] = useState(false);
-    const [selectedContact, setSelectedContact] = useState(-1);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     
 
@@ -51,18 +49,18 @@ export default function Contacts() {
                 }}>
                 <Text style={styles.newItemButtonText}>+</Text>
             </TouchableOpacity>
-            {popoverVisibility && <View style={styles.popover}>
+            {(popoverVisibility || selectedIndex > 0) && <View style={styles.popover}>
             <Text
                 style = {styles.popoverTitleLabel}
-                >New Contact</Text>
+                >{selectedIndex > -1 ? "Edit Contact": "New Contact"}</Text>
             <TextInput
                 style = {styles.itemNameInput}          
                 returnKeyType = {"next"}
                 multiline = {false}
                 maxLength = {200}
                 placeholder = "Name" 
-                value = {itemName}
-                onChangeText = { text => {setItemName(text.replace('\n', ''))}}
+                value = {contactName}
+                onChangeText = { text => {setContactName(text.replace('\n', ''))}}
                 onSubmitEditing={ () => {ref_input2.current.focus() }}
                 />
             <TextInput
@@ -72,9 +70,9 @@ export default function Contacts() {
                 autoCapitalize = {'none'}
                 autoCorrect = {false}
                 placeholder = "Venmo username" 
-                value = {price}
+                value = {venmoUsername}
                 ref={ref_input2}
-                onChangeText = { text => {setPrice(text.replace('\n', ''))}}
+                onChangeText = { text => {setVenmoUsername(text.replace('\n', ''))}}
                 />
                 <View
                     style = {styles.buttonContainer}>
@@ -82,13 +80,20 @@ export default function Contacts() {
                         style = {styles.button}
                         onPress = { () => {
                             var tempContacts = contacts;
-                            if (itemName != "" && price != "") {
-                                tempContacts .push({
-                                    name : itemName,
-                                    venmoUsername : price,
-                                });
-                                setPrice('0.00');
-                                setItemName('');
+                            if (contactName != "" && venmoUsername != "") {
+                                if(selectedIndex > -1){
+                                    var updatedContact = {name : contactName, venmoUsername : venmoUsername};
+                                    tempContacts.splice(selectedIndex, 1, updatedContact);
+                                }
+                                else{
+                                    tempContacts .push({
+                                        name : contactName,
+                                        venmoUsername : venmoUsername,
+                                    });
+                                }
+                                setSelectedIndex(-1)
+                                setVenmoUsername('');
+                                setContactName('');
                                 setContacts(tempContacts);
                                 storeContacts(tempContacts);
                                 setPopoverVisibility(false);
@@ -97,20 +102,27 @@ export default function Contacts() {
                         >
                         <Text
                             style = {styles.buttonText}>
-                                New Contact
+                                {selectedIndex > -1 ? "Update ": "Add"}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                         style = {styles.button}
                         onPress = { () => {
-                            setPrice('');
-                            setItemName('');
+                            if(selectedIndex > -1){
+                                var tempContacts = contacts;
+                                tempContacts.splice(selectedIndex, 1)
+                                setContacts(tempContacts);
+                                storeContacts(tempContacts);
+                            }
+                            setVenmoUsername('');
+                            setContactName('');
+                            setSelectedIndex(-1);
                             setPopoverVisibility(false);
                         }}
                         >
                         <Text
                             style = {styles.buttonText}>
-                                Cancel
+                                {selectedIndex > -1 ? "Delete ": "Cancel"}
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -124,10 +136,10 @@ export default function Contacts() {
                                     <TouchableOpacity 
 
                                         onPress ={() => {
-                                            setSelectedContact(item);
                                             setSelectedIndex(index);
-                                            console.log('selected index =', index)
-                                            setPopoverVisibility2(true);
+                                            setContactName(item.name)
+                                            setVenmoUsername(item.venmoUsername)
+                                            console.log("selected index: " , selectedIndex)
                                         }} >
                                     
                                         <View style={styles.listItemView}>
@@ -135,76 +147,6 @@ export default function Contacts() {
                                             <Text style={styles.listItemPrice}>@{item.venmoUsername}</Text>
                                         </View>
                                     </TouchableOpacity>  
-
-                                    {popoverVisibility2 && <View style={styles.popover}>
-                                        <Text
-                                            style = {styles.popoverTitleLabel}
-                                            >Edit Contact</Text>
-                                        <TextInput
-                                            style = {styles.itemNameInput}          
-                                            returnKeyType = {"next"}
-                                            multiline = {false}
-                                            maxLength = {200}
-                                            placeholder = {selectedContact.name}
-                                            value = {itemName}
-                                            onChangeText = { text => {setItemName(text.replace('\n', ''))}}
-                                            onSubmitEditing={ () => {ref_input2.current.focus() }}
-                                            />
-                                        <TextInput
-                                            style = {styles.itemPriceInput}          
-                                            returnKeyType = {"next"}
-                                            multiline = {false}
-                                            autoCapitalize = {'none'}
-                                            autoCorrect = {false}
-                                            placeholder = {selectedContact.venmoUsername}
-                                            value = {price}
-                                            ref={ref_input2}
-                                            onChangeText = { text => {setPrice(text.replace('\n', ''))}}
-                                            />
-                                            <View
-                                                style = {styles.buttonContainer}>
-                                                <TouchableOpacity 
-                                                    style = {styles.button}
-                                                    onPress = { () => {
-                                                        var tempContacts = contacts;
-                                                        if (itemName != "" && price != "") {
-                                                            var updatedContact = {name : itemName, venmoUsername : price};
-                                                            tempContacts.splice(selectedIndex, 1, updatedContact);
-                                                            setPrice('');
-                                                            setItemName('');
-                                                            setContacts(tempContacts);
-                                                            storeContacts(tempContacts);
-                                                            setPopoverVisibility2(false);
-                                                        }
-                                                    }}
-                                                    >
-                                                    <Text
-                                                        style = {styles.buttonText}>
-                                                            Update Contact
-                                                    </Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity 
-                                                    style = {styles.button}
-                                                    onPress = { () => {
-                                                        var tempContacts = contacts;
-                                                        tempContacts.splice(selectedIndex, 1)
-                                                        setPrice('');
-                                                        setItemName('');
-                                                        setContacts(tempContacts);
-                                                        storeContacts(tempContacts);
-                                                        setPopoverVisibility2(false);
-                                                        console.log("item deleted at index: " , {selectedIndex})
-                                                    }}
-                                                    >
-                                                    <Text
-                                                        style = {styles.buttonText}>
-                                                            Delete
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>}
-
-
                                 </View>)}}
                 />
         </SafeAreaView>
