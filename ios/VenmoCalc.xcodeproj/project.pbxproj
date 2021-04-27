@@ -152,7 +152,7 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = 8XGM8FJGYU;
+						DevelopmentTeam = CC874GH5YY;
 						LastSwiftMigration = 1120;
 					};
 				};
@@ -334,7 +334,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VenmoCalc/venmoCalculator.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8XGM8FJGYU;
+				DEVELOPMENT_TEAM = CC874GH5YY;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -366,7 +366,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VenmoCalc/venmoCalculator.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8XGM8FJGYU;
+				DEVELOPMENT_TEAM = CC874GH5YY;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				INFOPLIST_FILE = VenmoCalc/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;

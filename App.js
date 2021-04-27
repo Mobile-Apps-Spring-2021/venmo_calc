@@ -3,10 +3,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import NewReceipt from './NewReceipt'
 import Contacts from './Contacts'
 import History from './History'
 import Scan from './ScanScreen'
+import { ReceiptStack } from './ReceiptStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,7 +18,6 @@ export default function App() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === 'Manual Receipt') {
             iconName = 'receipt-outline'
           } else if (route.name === 'Contacts') {
@@ -28,7 +27,6 @@ export default function App() {
           } else if (route.name === 'Scan') {
             iconName = 'camera-outline';
           }
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
@@ -38,7 +36,7 @@ export default function App() {
       }}
     >
         <Tab.Screen name="Scan" children = { () => (<Scan/>)}/>
-        <Tab.Screen name="Manual Receipt" children = { () => (<NewReceipt/>)}/>
+        <Tab.Screen name="Manual Receipt" children = { () => (<ReceiptStack/>)}/>
         <Tab.Screen name="Contacts" children = { () => (<Contacts/>)}/>
         <Tab.Screen name="History" children = { () => (<History/>)}/>
       </Tab.Navigator>

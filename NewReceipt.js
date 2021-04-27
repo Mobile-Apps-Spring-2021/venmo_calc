@@ -1,6 +1,7 @@
 import React, {useState, useRef, useEffect} from 'react';
 import { TouchableWithoutFeedback, Keyboard, SafeAreaView, View, StyleSheet, Text, TextInput, TouchableOpacity, FlatList, } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Switch } from 'react-native-gesture-handler';
 
 const getContacts = async() => {
     try {
@@ -13,32 +14,32 @@ const getContacts = async() => {
 }
 
 function getInitials(item) {
-	//if(item != undefined){
-		console.log('Item : ' + JSON.stringify(item));
-		let splitName = item.name.split(' ');
-		var initials = "";
-		for (var i = 0; i < 2; i++) {
-			if (splitName[i] != null) {
-				let character = splitName[i][0]
-				initials += character;
-			} 
-		}
-		if (initials.length < 2) {
-			initials = item.name.slice(0, 2);
-		}
-		return initials;
+	console.log('Item : ' + JSON.stringify(item));
+	let splitName = item.name.split(' ');
+	var initials = "";
+	for (var i = 0; i < 2; i++) {
+		if (splitName[i] != null) {
+			let character = splitName[i][0]
+			initials += character;
+		} 
+	}
+	if (initials.length < 2) {
+		initials = item.name.slice(0, 2);
+	}
+	return initials;
 }
 
-function getItemsWithTotal(items) {
+function getItemsWithTotal(items, pushTotal) {
     var itemsWithTotal = []
-    var total = 0
+    var total = 0;
     items.forEach(item => {
-        itemsWithTotal.push(item)
-        item.contacts = [0, 1]
+        itemsWithTotal.push(item);
         total += parseFloat(item.price);
     })
-    itemsWithTotal.push({name : 'total', price : total.toString()})
-	console.log('Items with total = ' + JSON.stringify(itemsWithTotal));
+    if (pushTotal) {
+        itemsWithTotal.push({name : 'total', price : total.toString()})
+        console.log('Items with total = ' + JSON.stringify(itemsWithTotal));
+    }
     return itemsWithTotal;
 }
 
@@ -49,21 +50,24 @@ function getRandomColor() {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-  }
-  
-
+}
 
 export default function NewReceipt(props, route, navigation) {
     const ref_input2 = useRef();
     const [price, setPrice] = useState('0.00');
     const [itemName, setItemName] = useState('');
 	const [items, setItems] = useState([]);
-
+	const [addedContacts, setAddedContacts] = useState([]);
 	const [splitContacts, setSplitContacts] = useState([])
-    //const [splitContacts, setSplitContacts] = useState([{name : "Curtis Aaron", venmoUsername : "curtis-aaron"}])
     const [popoverVisibility, setPopoverVisibility] = useState(false);
+	const [contactPopoverVis, setContactPopoverVis] = useState(false);
     const [selectedContact, setSelectedContact] = useState(-1);
 	const [importedItems, setImportedItems] = useState([]);
+	const [refreshPage, setRefreshPage] = useState("");
+	const [receiptName, setReceiptName] = useState(`Receipt - ${Date()}`);
+
+    const [splitByItem, setSplitByItem] = useState(true);
+    const [calculateTotal, setCalculateTotal] = useState(true);
 
 	const  populateImportedItems = async() => {
 		console.log('import in function');
@@ -71,9 +75,7 @@ export default function NewReceipt(props, route, navigation) {
 		setItems(props.route.params.itemsArray);
 	}	
 
-
     useEffect(() => {
-		
 		getContacts().then((contactsValue) => {
             if (contactsValue != "" && contactsValue != null) {
                 contactsValue.forEach(element => {
@@ -93,15 +95,70 @@ export default function NewReceipt(props, route, navigation) {
 		{
 			console.log('avoid error');
 		}
-		
-        
-
     }, [])
 
     return(
-
         <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); console.log('something')}} accessible={false}>
         <SafeAreaView style={styles.container}>
+			{/* Popper to select contact for the receipt */}
+			{contactPopoverVis && <View style={styles.contactPopover}>
+			<Text
+				style = {styles.popoverTitleLabel}
+				>Add Contacts</Text>
+			<FlatList
+				veritical
+				style={styles.addContactFlatList}
+				contentContainerStyle={styles.contactFlatListContainer} data={splitContacts}
+				keyExtractor={(item, index) => item + index}
+				renderItem={ ({item, index}) => {
+					let i = 0;
+					let contactInfo = item.name + ',\n@' + item.venmoUsername;
+					console.log('here ' + addedContacts.includes(item));
+					let borderRadius = addedContacts.includes(item) ? 2 : 0;
+					let bcolor = addedContacts.includes(item) ? item.color : 'lightgrey';
+					console.log('radius ' + borderRadius);
+					return (<TouchableOpacity 
+							style = {[styles.addContactFlatListItem, {backgroundColor : (addedContacts.includes(item) ? item.color : 'lightgrey') , borderWidth : borderRadius}]}
+							onPress ={() => {
+								console.log(addedContacts.includes(item));
+								setRefreshPage(Math.random());
+								i = addedContacts.indexOf(item);
+								console.log(i);
+								if(addedContacts.includes(item)){
+									console.log('Found? ' + i);
+									addedContacts.splice(i, 1);
+								}
+								else{
+									addedContacts.push(item);
+								}
+								{/*(addedContacts.includes(item) ? addedContacts.push(item) : ; */}
+								{/*setSelectedContact(selectedContact == index ? -1 : index);*/}
+								console.log('added contacts: ' + JSON.stringify(addedContacts));
+							}}>
+						<Text>
+							{contactInfo}
+						</Text>
+					</TouchableOpacity>)
+				}}>
+			</FlatList>
+			<View
+                style = {styles.buttonContainer}>
+				<TouchableOpacity 
+					style = {styles.button}
+					onPress = { () => {
+						setContactPopoverVis(false);
+					}}>
+					<Text
+						style = {styles.buttonText}>
+							Close
+					</Text>
+				</TouchableOpacity>
+			</View>
+			</View>
+			
+			//end addContact popper
+			
+			}
             {popoverVisibility && <View style={styles.popover}>
             <Text
                 style = {styles.popoverTitleLabel}
@@ -200,27 +257,56 @@ export default function NewReceipt(props, route, navigation) {
             </View>}
             <Text
                 style = {styles.titleLabel}
-                >Receipt Name</Text>
+                >Lets slipt the bill!</Text>
             <TextInput 
                 style = {styles.titleInput}
                 returnKeyType = {"next"}
                 autoFocus = {true}
-                placeholder = "Title" 
-                onChangeText={text => console.log(`text = ${text}`)}
+                placeholder = "Enter Receipt Name" 
+                onChangeText={text => setReceiptName(text)}
                 onSubmitEditing={Keyboard.dismiss}
                 />
             
                 <FlatList
                     style={styles.flatList}
-                    data={getItemsWithTotal(items)}
+                    data={getItemsWithTotal(items, calculateTotal)}
                     keyExtractor={(item, index) => item + index}
-                    renderItem={({item}) => {
+                    renderItem={({item, index}) => {
 						console.log('data : ' + item);
+                        let rng = item.contacts;
                         return(<View style={styles.listFullView}>
-                                    <View style={styles.listItemView}>
+                                    <TouchableOpacity 
+                                        style={styles.listItemView}
+                                        onPress={() => {
+                                            console.log('press')
+                                            let newItem = item;
+                                            if (selectedContact > -1 && (items.length != index) || !calculateTotal) {
+                                                if (newItem.contacts == null) {
+                                                    newItem.contacts = [selectedContact]
+                                                } else {
+                                                    let contactsIndex = newItem.contacts.indexOf(selectedContact);
+                                                    if (contactsIndex > -1) {
+                                                        newItem.contacts.splice(contactsIndex, 1);
+                                                    } else {
+                                                        newItem.contacts.push(selectedContact);
+                                                    }
+                                                }                                                 
+                                                // let newItems = items;
+                                                // newItems[index] = newItem;
+                                                setItems(newItems => {
+                                                    return newItems.map((item, id) => {
+                                                        if (id === index) {
+                                                           item = newItem;
+                                                        }
+                                                        return item;
+                                                      });
+                                                });
+                                            }
+                                        }}>
                                         <Text style={styles.listItemName}>{item.name}</Text>
                                         <Text style={styles.listItemPrice}>${item.price}</Text>
-                                    </View>
+                                    </TouchableOpacity>
+                                {splitByItem &&
 								<FlatList
                                         horizontal 
                                         style={{
@@ -259,17 +345,66 @@ export default function NewReceipt(props, route, navigation) {
                                             )
                                         }}>
 
-                                    </FlatList>
+                                    </FlatList>}
+                                
 
                                 </View>)}}
                     />
-            <TouchableOpacity 
-                style={styles.newItemButton}
-                onPress={() => {
-                    setPopoverVisibility(true);
-                }}>
-                <Text style={styles.newItemButtonText}>+</Text>
-            </TouchableOpacity>
+            <View style={styles.settingsContainer}>
+                <View style={styles.settingsContainerItem}>
+                    <Text>Split by Item</Text>
+                    <Switch
+                        value={splitByItem}
+                        onValueChange={()=>{setSplitByItem(!splitByItem)}}
+                        ></Switch>
+                </View>
+                {splitByItem ? <Text>Click a contact then the item to assign</Text> : 
+                                  <Text>Total will be split by all contacts on receipt</Text> }
+                <View style={styles.settingsContainerItem}>
+                    <Text>Calculate Total</Text>
+                    <Switch
+                        value={calculateTotal}
+                        onValueChange={()=>{setCalculateTotal(!calculateTotal)}}
+                        ></Switch>
+                </View>
+            </View>
+            <View style={styles.actionRow}>
+                <View style={styles.doneButtonRow}>
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={() => {
+                            if (addedContacts.length > 0) {
+                                var requestItems = null;
+                                var requestTotal = null;
+                                let itemsWithTotal = getItemsWithTotal(items, calculateTotal);
+                                requestTotal = itemsWithTotal[itemsWithTotal.length - 1].price;
+
+                                if (splitByItem) {
+                                    requestItems = items;
+                                }
+
+                                props.navigation.navigate('Split', {
+                                    items : requestItems,
+                                    contacts : addedContacts,
+                                    total: requestTotal,
+                                    splitByItem: splitByItem,
+                                    receiptName: receiptName,
+                                });
+                            } else {
+                                // show alert here
+                            }
+                        }}>
+                        <Text style={styles.buttonText}>done</Text>
+                    </TouchableOpacity>
+                </View>
+                <TouchableOpacity 
+                    style={styles.newItemButton}
+                    onPress={() => {
+                        setPopoverVisibility(true);
+                    }}>
+                    <Text style={styles.newItemButtonText}>+</Text>
+                </TouchableOpacity>
+            </View>
             <View style = {styles.contactsView}>
                 <View style={{
                     flexDirection: 'row',
@@ -279,10 +414,12 @@ export default function NewReceipt(props, route, navigation) {
                     marginLeft: '2%',
                     marginRight: '2%',
                 }}>
+					{/* changed splitContacts to addedContacts*/}
 					<FlatList
                         horizontal
                         style={styles.contactFlatList}
-                        contentContainerStyle={styles.contactFlatListContainer} data={splitContacts}
+																				
+                        contentContainerStyle={styles.contactFlatListContainer} data={addedContacts}
                         keyExtractor={(item, index) => item + index}
                         renderItem={ ({item, index}) => {
                             let initials = getInitials(item);
@@ -300,9 +437,13 @@ export default function NewReceipt(props, route, navigation) {
                         }}>
                     </FlatList>
 
-                    <TouchableOpacity>
+                    <TouchableOpacity
+						onPress={() => {
+							setContactPopoverVis(true);
+							console.log('Add contacts');
+						}}>
                         <Text>
-                            button
+                            Add Contact
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -318,6 +459,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+  },
+  settingsContainer: {
+    width: '90%',
+    marginLeft: '5%',
+    justifyContent: 'flex-start',
+    height: '20%',
+  },
+  settingsContainerItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 0,
+    marginTop: 15,
   },
   titleLabel: {
     marginTop: 20,
@@ -402,6 +555,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: {width: 2, height: 2}
   },
+  contactPopover: {
+    textAlign: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    zIndex: 20,
+    left: '10%',
+    right: '10%',
+    marginTop: '30%',
+    backgroundColor: 'lightgrey',
+    borderRadius: 5,
+    shadowRadius: 5,
+    shadowColor: 'black',
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 2, height: 2},
+	height: 300,
+  },
   newItemButton: {
     // position: 'absolute',
     justifyContent: 'center',
@@ -431,10 +600,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '70%',
   },
+  addContactFlatList: {
+	flex: 1,
+    width: '60%',
+	height:'20%',
+  },
   contactFlatListContainer: {
     alignContent: 'center',
     justifyContent: 'center',
     marginLeft: '3%',
+  },
+  addContactFlatListItem: {
+	flex:1,
+	backgroundColor: 'white',
+    height: 50,
+    width: 150,
+    borderRadius: 30,
+	padding:2,
+	margin: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   contactFlatListItem: {
     backgroundColor: 'white',
@@ -448,5 +633,10 @@ const styles = StyleSheet.create({
   contactFlatListText: {
     fontSize: 25,
     color: 'white',
+  },
+  doneButtonRow: {
+    justifyContent: 'center',
+    width: '100%',
+    flexDirection: 'row',
   }
 });

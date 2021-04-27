@@ -7,6 +7,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import NewReceipt from './NewReceipt'
+import RequestScreen from './RequestScreen'
 import TesseractOcr, {
   LANG_ENGLISH,
   useEventListener,
@@ -30,6 +31,7 @@ export default class ScanScreen extends React.Component {
 			  <stackNav.Navigator initialRouteName='scan'>
 				<stackNav.Screen name='scan' component={Scan}/>
 				<stackNav.Screen name='review' component={NewReceipt}/>
+				<stackNav.Screen name='split' component={RequestScreen}/>
 			   </stackNav.Navigator>
 			</NavigationContainer>
 		);
@@ -61,7 +63,9 @@ export class Scan extends React.Component {
 				price = linesArray[x].substring(numStartIndex);
 				item = item.trim();
 				price = price.trim();
-				outArray.push({name: item, price: price});
+				if(!(item.includes('total') || item.includes('TOTAL'))){
+					outArray.push({name: item, price: price});
+				}
 				console.log(outArray[0].name);
 				//outArray[outIndex][1] = parseFloat(outArray[outIndex][1]);
 				outIndex++;
