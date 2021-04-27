@@ -303,7 +303,7 @@ PODS:
     - TOCropViewController
   - RNReanimated (1.13.3):
     - React-Core
-  - RNScreens (3.1.1):
+  - RNScreens (3.1.0):
     - React-Core
   - RNVectorIcons (8.1.0):
     - React-Core
@@ -568,7 +568,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
   RNImageCropPicker: e641bf83ac47324994cac139bde74635ec52c17c
   RNReanimated: 514a11da3a2bcc6c3dfd9de32b38e2b9bf101926
-  RNScreens: bd1523c3bde7069b8e958e5a16e1fc7722ad0bdd
+  RNScreens: 3ba2198ca3179f77f6158425fc31ba3c90a0d49f
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   TOCropViewController: 3105367e808b7d3d886a74ff59bf4804e7d3ab38
   UMAppLoader: 92d044af52626af3d81a69796ad666fc7a9a7d78
@@ -588,4 +588,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f68d42f9a463bac575778a17c7fea21618f95f78
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.10.1
