@@ -52,11 +52,11 @@ export default function History() {
 				</FlatList>
 			</View>
 			<View style = {styles.refreshButton}>
-				<TouchableOpacity
+				<TouchableOpacity style = {styles.TOContainer}
 					onPress={() => {
 						refresh();
 					}}>
-					<Text>
+					<Text style = {styles.TOText}>
 						Refresh
 					</Text>
                 </TouchableOpacity>
@@ -120,5 +120,19 @@ const styles = StyleSheet.create({
   },
     flistText : {
 	fontSize: 20,	
-  }
+  },
+  TOContainer: {
+		backgroundColor: 'purple',
+		margin: 10,
+		borderRadius: 10,
+		padding: 10,
+		justifyContent: 'center',
+		alignItems: 'center',
+  },
+  TOText: {
+		color: 'white',
+		fontSize: 20,
+		justifyContent: 'center',
+		alignItems: 'center',
+  },
 });
