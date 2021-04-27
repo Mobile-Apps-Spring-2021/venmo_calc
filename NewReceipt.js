@@ -257,7 +257,7 @@ export default function NewReceipt(props, route, navigation) {
             </View>}
             <Text
                 style = {styles.titleLabel}
-                >Lets slipt the bill!</Text>
+                >Lets split the bill!</Text>
             <TextInput 
                 style = {styles.titleInput}
                 returnKeyType = {"next"}

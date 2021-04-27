@@ -31,7 +31,7 @@ export default class ScanScreen extends React.Component {
 			  <stackNav.Navigator initialRouteName='scan'>
 				<stackNav.Screen name='scan' component={Scan}/>
 				<stackNav.Screen name='review' component={NewReceipt}/>
-				<stackNav.Screen name='split' component={RequestScreen}/>
+				<stackNav.Screen name='Split' component={RequestScreen}/>
 			   </stackNav.Navigator>
 			</NavigationContainer>
 		);
@@ -132,8 +132,11 @@ export class Scan extends React.Component {
 	render(){
 		return (
 		
-				
+			
 			<View style={styles.container}>
+				<View style = {styles.heading}>
+					<Text style = {styles.textHeading}>Venmo Calculator</Text>
+				</View>
 				<Text style={styles.title}>Scan A Reciept</Text>
 				<Text style={styles.instructions}>Select an image source:</Text>
 				<View style={styles.options}>
@@ -253,5 +256,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333333',
     marginBottom: 5,
+  },
+  textHeading: {
+	  fontSize: 35,
+	  color: 'purple',
+  },
+  heading: {
+	  flex: 1,
+	  position: 'absolute',
+	  top: 30,
+	  alignItems: 'center',
+	  justifyContent: 'center',
   },
 });
